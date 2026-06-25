@@ -48,3 +48,6 @@ O design contorna os limites padrões do framework utilizando injeções de **HT
 ```bash
 git clone [https://github.com/Emiliabz/projeto_copa_2026.git](https://github.com/Emiliabz/projeto_copa_2026.git)
 cd projeto_copa_2026
+
+### 2. Link do projeto no streamlit
+https://projetocopa2026-emiliabz.streamlit.app/
