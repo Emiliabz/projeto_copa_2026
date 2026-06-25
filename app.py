@@ -154,82 +154,76 @@ div[data-testid="stDataFrame"] tr:nth-child(even) td {{
 """, unsafe_allow_html=True)
 
 # 4. CARREGANDO O BANCO DE DADOS (As 48 seleções)
-@st.cache_data(ttl=600) # Mantém por 10 minutos para proteger seus créditos da API
-def carregar_dados_da_api():
-    url = "https://wc26-live-football-api.p.rapidapi.com/standings" # Ajustado para o endpoint de standings da nova API
-    
+def _fetch_from_api(headers):
+    """Função auxiliar para fazer a requisição à API."""
+    url = "https://wc26-live-football-api.p.rapidapi.com/standings"
+    params = {"league": "1", "season": "2022"}
+    return requests.get(url, headers=headers, params=params, timeout=10)
+
+def _parse_api_response(api_response):
+    """Função auxiliar para processar o JSON da API e retornar um DataFrame."""
+    dados_grupos = api_response.json()
+    league_data = dados_grupos['response'][0]['league']
+    lista_times = []
+
+    for grupo_data in league_data['standings']:
+        for time_info in grupo_data:
+            # Valores padrão de contingência
+            jogos = max(1, time_info['all']['played'])
+            gols_sofridos = time_info['all']['goals']['against']
+            amarelos = time_info.get('cards', {}).get('yellow', {}).get('total', 2)
+            chutes = time_info.get('all', {}).get('shots', {}).get('on', 4 * jogos)
+            passes = time_info.get('all', {}).get('passes', {}).get('total', 400 * jogos)
+            faltas = time_info.get('all', {}).get('fouls', {}).get('committed', 10)
+            posse = 50
+
+            lista_times.append({
+                "Selecao": time_info['team']['name'],
+                "Grupo": time_info['group'].replace("Group ", ""),
+                "RankingFifa": int(time_info['rank']),
+                "Passes_Completos": int(passes),
+                "Chutes_no_Alvo": int(chutes),
+                "Posse_Bola": int(posse),
+                "Gols_Sofridos": int(gols_sofridos),
+                "Cartoes_Amarelos": int(amarelos),
+                "Faltas": int(faltas)
+            })
+    return pd.DataFrame(lista_times)
+
+@st.cache_data(ttl=600)  # Mantém por 10 minutos para proteger seus créditos da API
+def carregar_dados_da_api(api_key=None, api_host=None):
+    """
+    Orquestra o carregamento de dados, tentando a API primeiro
+    e usando um backup local em caso de falha.
+    """
+    # Se a chave de API não estiver configurada, usa o backup diretamente.
+    if not api_key or not api_host:
+        st.sidebar.warning("⚠️ Chave de API não configurada. Usando Backup Local.")
+        return pd.read_csv("backup_times.csv")
+
     try:
-        # Se a chave de API não estiver configurada nos segredos, usa o backup diretamente.
-        if "RAPIDAPI_KEY" not in st.secrets or not st.secrets["RAPIDAPI_KEY"]:
-            st.sidebar.warning("⚠️ Chave de API não configurada. Usando Backup Local.")
-            return pd.read_csv("backup_times.csv")
-
-        # A criação dos headers agora é feita APÓS a verificação do segredo
         headers = {
-            "X-RapidAPI-Key": st.secrets["RAPIDAPI_KEY"],
-            "X-RapidAPI-Host": st.secrets["RAPIDAPI_HOST"]
+            "X-RapidAPI-Key": api_key,
+            "X-RapidAPI-Host": api_host
         }
+        rep_grupos = _fetch_from_api(headers)
 
-        league_id = "1"
-        season = "2022"
-        rep_grupos = requests.get(url, headers=headers, params={"league": league_id, "season": season}, timeout=10)
-        
         if rep_grupos.status_code == 200 and rep_grupos.json().get('response'):
-            dados_grupos = rep_grupos.json()
-            league_data = dados_grupos['response'][0]['league']
-            lista_times = []
-            
-            for grupo_data in league_data['standings']:
-                for time_info in grupo_data:
-                    id_time = time_info['team']['id']
-                    nome_time = time_info['team']['name']
-                    grupo_letra = time_info['group'].replace("Group ", "")
-                    ranking = time_info['rank']
-                    
-                    # Faz a requisição de scouts reais por time
-                    # A nova API pode já incluir todos os dados, então a segunda chamada de 'stats' é removida.
-                    # O código abaixo se torna um fallback caso os dados não venham na primeira chamada.
-                    
-                    # Valores padrão de contingência
-                    gols_sofridos = time_info['all']['goals']['against']
-                    amarelos = 2
-                    faltas = 10
-                    jogos = max(1, time_info['all']['played'])
-                    chutes = 4 * jogos
-                    passes = 400 * jogos
-                    posse = 50
-                    
-                    # O bloco de stats foi simplificado, pois a nova API pode ter uma estrutura diferente.
-                    # Mantemos a lógica de fallback com os dados já disponíveis no 'time_info'.
-                    # Isso torna o código mais resiliente a mudanças na API.
-                    amarelos = time_info.get('cards', {}).get('yellow', {}).get('total', amarelos)
-                    chutes = time_info.get('all', {}).get('shots', {}).get('on', chutes)
-                    passes = time_info.get('all', {}).get('passes', {}).get('total', passes)
-                    faltas = time_info.get('all', {}).get('fouls', {}).get('committed', faltas)
-                    
-                    lista_times.append({
-                        "Selecao": nome_time,
-                        "Grupo": grupo_letra,
-                        "RankingFifa": int(ranking),
-                        "Passes_Completos": int(passes),
-                        "Chutes_no_Alvo": int(chutes),
-                        "Posse_Bola": int(posse),
-                        "Gols_Sofridos": int(gols_sofridos),
-                        "Cartoes_Amarelos": int(amarelos),
-                        "Faltas": int(faltas)
-                    })
             st.sidebar.success("🟢 Dados carregados da API externa!")
-            return pd.DataFrame(lista_times)
+            return _parse_api_response(rep_grupos)
         else:
             st.sidebar.warning(f"⚠️ API indisponível (Status: {rep_grupos.status_code}). Usando Backup Local.")
             return pd.read_csv("backup_times.csv")
-            
-    except Exception:
-        st.sidebar.warning("⚠️ Modo Offline: Usando Banco de Dados Local.")
+
+    except requests.exceptions.RequestException as e:
+        st.sidebar.error(f"⚠️ Erro de conexão: {e}. Usando Backup Local.")
         return pd.read_csv("backup_times.csv")
 
 # Executa a função para alimentar o aplicativo inteiro
-df_times = carregar_dados_da_api()
+df_times = carregar_dados_da_api(
+    api_key=st.secrets.get("RAPIDAPI_KEY"),
+    api_host=st.secrets.get("RAPIDAPI_HOST")
+)
 
 # Título Principal do Painel
 with st.container():
