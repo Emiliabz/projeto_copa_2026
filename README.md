@@ -8,6 +8,12 @@ Uma aplicação interativa de Business Intelligence e Ciência de Dados voltada 
 
 ---
 
+## 🌍 Acesse a Aplicação ao Vivo
+O projeto está publicado e pode ser acessado diretamente pelo navegador através do link abaixo:
+👉 [https://projetocopa2026-emiliabz.streamlit.app/](https://projetocopa2026-emiliabz.streamlit.app/)
+
+---
+
 ## 🚀 Funcionalidades Principais
 
 * **Painel Geral de Grupos:** Grid responsivo de 12 grupos (A a L) ordenados de forma tática pelo Rank oficial da FIFA, apresentando layouts customizados de tabelas zebradas para máxima legibilidade.
@@ -41,8 +47,6 @@ O design contorna os limites padrões do framework utilizando injeções de **HT
 * **Gráficos Elegantes:** Substituição de cores supersaturadas por paletas sóbrias (Azul Mineral, Verde Sálvia e Terracotta), mantendo o foco analítico e a consistência corporativa.
 
 ---
-## Link do projeto no streamlit
-https://projetocopa2026-emiliabz.streamlit.app/
 
 ## 🏁 Como Executar o Projeto Localmente
 
@@ -50,4 +54,3 @@ https://projetocopa2026-emiliabz.streamlit.app/
 ```bash
 git clone [https://github.com/Emiliabz/projeto_copa_2026.git](https://github.com/Emiliabz/projeto_copa_2026.git)
 cd projeto_copa_2026
-
