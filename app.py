@@ -166,8 +166,8 @@ def carregar_dados_da_api():
 
         # A criação dos headers agora é feita APÓS a verificação do segredo
         headers = {
-            "X-RapidAPI-Key": "54992348b0msha31ec91f073bb42p1eccfbjsn37f397192ff1",
-            "X-RapidAPI-Host": "wc26-live-football-api.p.rapidapi.com"
+            "X-RapidAPI-Key": st.secrets["RAPIDAPI_KEY"],
+            "X-RapidAPI-Host": st.secrets["RAPIDAPI_HOST"]
         }
 
         league_id = "1"
