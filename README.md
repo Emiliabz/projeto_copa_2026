@@ -41,6 +41,8 @@ O design contorna os limites padrões do framework utilizando injeções de **HT
 * **Gráficos Elegantes:** Substituição de cores supersaturadas por paletas sóbrias (Azul Mineral, Verde Sálvia e Terracotta), mantendo o foco analítico e a consistência corporativa.
 
 ---
+## Link do projeto no streamlit
+https://projetocopa2026-emiliabz.streamlit.app/
 
 ## 🏁 Como Executar o Projeto Localmente
 
@@ -49,5 +51,3 @@ O design contorna os limites padrões do framework utilizando injeções de **HT
 git clone [https://github.com/Emiliabz/projeto_copa_2026.git](https://github.com/Emiliabz/projeto_copa_2026.git)
 cd projeto_copa_2026
 
-### 2. Link do projeto no streamlit
-https://projetocopa2026-emiliabz.streamlit.app/
