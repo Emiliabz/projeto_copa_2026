@@ -8,6 +8,12 @@ Uma aplicação interativa de Business Intelligence e Ciência de Dados voltada 
 
 ---
 
+## 🌍 Acesse a Aplicação ao Vivo
+O projeto está publicado e pode ser acessado diretamente pelo navegador através do link abaixo:
+👉 [https://projetocopa2026-emiliabz.streamlit.app/](https://projetocopa2026-emiliabz.streamlit.app/)
+
+---
+
 ## 🚀 Funcionalidades Principais
 
 * **Painel Geral de Grupos:** Grid responsivo de 12 grupos (A a L) ordenados de forma tática pelo Rank oficial da FIFA, apresentando layouts customizados de tabelas zebradas para máxima legibilidade.
